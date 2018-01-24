@@ -12,7 +12,6 @@
 typedef struct {
         long n;
         long m;
-        long orgM;
 
         unsigned int *num_edges;
         unsigned int *adj;

@@ -40,16 +40,8 @@ void load_graph_from_file(char *inFileName, graph_t *g) {
         }
 
         //Read number of vertices and edges
-        fread(&(g->n), sizeof(long), 1, infp);
-        fread(&(g->m), sizeof(long), 1, infp);
-        fread(&(g->orgM), sizeof(long), 1, infp);
-        long notNeededVal;
-        fread(&notNeededVal, sizeof(long), 1, infp);
-        fread(&notNeededVal, sizeof(long), 1, infp);
-        fread(&notNeededVal, sizeof(long), 1, infp);
-        fread(&notNeededVal, sizeof(long), 1, infp);
-
-        printf("N: %ld, M: %ld, orgM: %ld \n", g->n, g->m, g->orgM);
+        fscanf(infp, "%ld %ld", &(g->n), &(g->m));
+        printf("N: %ld, M: %ld\n", g->n, g->m);
 
        long m = g->m;
 
@@ -58,17 +50,21 @@ void load_graph_from_file(char *inFileName, graph_t *g) {
         assert(g->num_edges != NULL);
         g->adj = (unsigned int *) malloc(m * sizeof(unsigned int));
         assert(g->adj != NULL);
-        double * val = (double *) malloc(m * sizeof(double));
-        assert(val != NULL);
 
-        fread(g->num_edges, sizeof(unsigned int), (g->n) + 1, infp);
-        fread(g->adj, sizeof(unsigned int), m, infp);
-        fread(val, sizeof(double), m, infp);
+        unsigned int count = 0;
+        unsigned int num;
+        g->num_edges[0] = count;
+        for (int i=0; i < g->n; i++)
+        {
+            fscanf(infp, "%u", &num);
+            unsigned int* neighs = g->adj+count;
+            for (int j=0; j < num; j++)
+                fscanf(infp, "%u", neighs++);
+            count += num;
+            g->num_edges[i+1] = count;
+        }
 
         fclose(infp);
-
-        //Free memory
-        free(val);
 
         g->edgeWeight = (unsigned int *) malloc(m * sizeof(unsigned int));
         assert(g->edgeWeight != NULL);
