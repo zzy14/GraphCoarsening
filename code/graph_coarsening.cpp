@@ -30,8 +30,8 @@ void coarsenGraph(graph_t & g, int supRowSize, unsigned int* & numEdgesSupRowsTo
 	
 		perm = (unsigned int *) malloc(localG.n * sizeof(unsigned int));
 
-		randomMatching(localG, perm, coarsendGraph);
-		//heavyEdgeMatching(localG, perm, coarsendGraph);
+		// randomMatching(localG, perm, coarsendGraph);
+		heavyEdgeMatching(localG, perm, coarsendGraph);
 		//lightEdgeMatching(localG, perm, coarsendGraph);
 
 		vectorSizes.push_back( localG.n);
@@ -268,7 +268,6 @@ void randomMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG) {
 	}
 
 	coarsenedG.m = adjVector.size();
-	coarsenedG.orgM = coarsenedG.m;
 
 	assert( coarsenedG.m == coarsenedG.num_edges[coarsenedG.n] );
 
@@ -428,7 +427,6 @@ void heavyEdgeMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG) {
 	}
 
 	coarsenedG.m = adjVector.size();
-	coarsenedG.orgM = coarsenedG.m;
 
 	assert( coarsenedG.m == coarsenedG.num_edges[coarsenedG.n] );
 
@@ -588,7 +586,6 @@ void lightEdgeMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG) {
 	}
 
 	coarsenedG.m = adjVector.size();
-	coarsenedG.orgM = coarsenedG.m;
 
 	assert( coarsenedG.m == coarsenedG.num_edges[coarsenedG.n] );
 
