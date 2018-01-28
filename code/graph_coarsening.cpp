@@ -30,9 +30,9 @@ void coarsenGraph(graph_t & g, int supRowSize, unsigned int* & numEdgesSupRowsTo
 	
 		perm = (unsigned int *) malloc(localG.n * sizeof(unsigned int));
 
-		// randomMatching(localG, perm, coarsendGraph);
-		heavyEdgeMatching(localG, perm, coarsendGraph);
-		//lightEdgeMatching(localG, perm, coarsendGraph);
+		randomMatching(localG, perm, coarsendGraph);
+		// heavyEdgeMatching(localG, perm, coarsendGraph);
+		// lightEdgeMatching(localG, perm, coarsendGraph);
 
 		vectorSizes.push_back( localG.n);
 		mappingVectors.push_back(perm);

@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
 	//coarsen g and get coarsenedG where each vertex contains superRowSize of vertices of g
 	coarsenGraph(g, superRowSize, numEdgesSupRowsToRows, mapSupRowstoRows, coarsenedG);
 
-	// cout<<"number of coarsest vertices: "<<coarsenedG.n<<endl;
+	cout<<"number of coarsest vertices: "<<coarsenedG.n<<endl;
 
 	// for(int i = 0; i < coarsenedG.n; i++) {
 	// 	cout<<"Coarsest vertex: "<< i <<" contains vertices: \n"; 
@@ -43,19 +43,21 @@ int main(int argc, char *argv[]) {
 
     // write look up
     FILE* fout;
-    fout = fopen("lookup.txt", "wb");
+    fout = fopen("look_up.txt", "wb");
     if (fout == NULL) {
         fprintf(stderr, "Error: could not open file to write lookup.\n");
         exit(1);
     }
-
+    fprintf(fout, "%ld %ld\n", g.n, coarsenedG.n);
     for(int i = 0; i < coarsenedG.n; i++) {
         for(int j = numEdgesSupRowsToRows[i]; j < numEdgesSupRowsToRows[i+1]; j++)
         {
             fprintf(fout, "%u", mapSupRowstoRows[j]);
-            for(int k = coarsenedG.num_edges[i]; k < coarsenedG.num_edges[i+1]; k++) {
-                fprintf(fout, " %u", coarsenedG.adj[k]);
-            }
+            // for(int k = coarsenedG.num_edges[i]; k < coarsenedG.num_edges[i+1]; k++) {
+            //     fprintf(fout, " %u", coarsenedG.adj[k]);
+            // }
+            // if (coarsenedG.num_edges[i] == coarsenedG.num_edges[i+1])
+                fprintf(fout, " %d", i);
             fprintf(fout, "\n");
         }
     }
@@ -65,7 +67,7 @@ int main(int argc, char *argv[]) {
 	free( numEdgesSupRowsToRows );
 	free( mapSupRowstoRows );
 
-        return 0;
+    return 0;
 }
 
 
