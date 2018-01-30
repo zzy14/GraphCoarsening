@@ -23,14 +23,14 @@ int main(int argc, char *argv[]) {
         graph_t coarsenedG;
 
         //Maximum number of rows in a super-row
-        int superRowSize = atoi( argv[2] );
+        int k = atoi( argv[2] );
 	
 	//Use these two arrays to find mapping from coarsest to finest vertices
 	unsigned int *numEdgesSupRowsToRows;
 	unsigned int *mapSupRowstoRows = (unsigned int *)malloc(g.n * sizeof(unsigned int));
 
-	//coarsen g and get coarsenedG where each vertex contains superRowSize of vertices of g
-	coarsenGraph(g, superRowSize, numEdgesSupRowsToRows, mapSupRowstoRows, coarsenedG);
+	//coarsen g and get coarsenedG 
+	coarsenGraph(g, k, numEdgesSupRowsToRows, mapSupRowstoRows, coarsenedG);
 
 	cout<<"number of coarsest vertices: "<<coarsenedG.n<<endl;
 

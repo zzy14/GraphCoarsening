@@ -41,10 +41,10 @@ struct sortBySecond {
 
 
 //Find a maximal matching by visiting vertices in random order and matching a vertex to one of neighbors randomly
-void randomMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG);
+void randomMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG, int target);
 
 //Find a maximal matching by visiting vertices in random order and matching a vertex the neighbor with maximum weight
-void heavyEdgeMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG);
+void heavyEdgeMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG, int target);
 
 //Find a maximal matching by visiting vertices in random order and matching a vertex the neighbor with least weight
 void lightEdgeMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG);
@@ -53,7 +53,7 @@ void lightEdgeMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG);
 void findFinalMapping(int numSupRows, vector<unsigned int> & vectorSizes, vector<unsigned int *> & mappingVectors, unsigned int* & numEdgesSupRowsToRows, unsigned int* & mapSupRowstoRows);
 
 //Coarsen a graph g and finds a graph coarsendGraph such that each vertex of coarsendGraph has supRowSize vertices of g
-void coarsenGraph(graph_t & g, int supRowSize, unsigned int* & numEdgesSupRowsToRows, unsigned int* & mapSupRowstoRows, graph_t & coarsendGraph);
+void coarsenGraph(graph_t & g, int k, unsigned int* & numEdgesSupRowsToRows, unsigned int* & mapSupRowstoRows, graph_t & coarsendGraph);
 
 
 

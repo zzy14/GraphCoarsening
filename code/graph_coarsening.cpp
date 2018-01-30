@@ -5,22 +5,22 @@
 #include "graph_coarsening.h"
 
 
-/* Coarsen a graph and find a coarsend graph until a vertex in coarsened graph has supRowSize vertices 
+/* Coarsen a graph and find a coarsend graph until there are k vertices in coarsened graph
  * of the input graph
  * Input: g - input graph
- * 	  supRowSize - super row size
+ * 	  k - vertices size
  * Output: coarsendGraph - coarsened graph
  * 	   numEdgesSupRowsToRows - points to mapSupRowstoRows to indicate where each coarsened vertex starts
  * 	   mapSupRowstoRows - contains fine graph vertices
  */
-void coarsenGraph(graph_t & g, int supRowSize, unsigned int* & numEdgesSupRowsToRows, unsigned int* & mapSupRowstoRows, graph_t & coarsendGraph) {
+void coarsenGraph(graph_t & g, int k, unsigned int* & numEdgesSupRowsToRows, unsigned int* & mapSupRowstoRows, graph_t & coarsendGraph) {
 	
 	vector<unsigned int *> mappingVectors;	
 	vector<unsigned int> vectorSizes;	
 
 	graph_t localG = g;
 
-	int finalNumVtxs = localG.n / supRowSize;
+	int finalNumVtxs = k;
 
 	//default value is g.n
 	//unsigned int maxSupRowSize = supRowSize * alpha;
@@ -30,8 +30,8 @@ void coarsenGraph(graph_t & g, int supRowSize, unsigned int* & numEdgesSupRowsTo
 	
 		perm = (unsigned int *) malloc(localG.n * sizeof(unsigned int));
 
-		randomMatching(localG, perm, coarsendGraph);
-		// heavyEdgeMatching(localG, perm, coarsendGraph);
+		// randomMatching(localG, perm, coarsendGraph, finalNumVtxs);
+		heavyEdgeMatching(localG, perm, coarsendGraph, finalNumVtxs);
 		// lightEdgeMatching(localG, perm, coarsendGraph);
 
 		vectorSizes.push_back( localG.n);
@@ -114,7 +114,7 @@ void findFinalMapping(int numSupRows, vector<unsigned int> & vectorSizes, vector
  *         coarsenedG - graph of the coarsened vertices */
 
 
-void randomMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG) {
+void randomMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG, int target) {
 
 	//Matched edges   
         set<Edge> matchEdges; 
@@ -134,8 +134,10 @@ void randomMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG) {
 	//Randomly shuffles the vertices
 	std::random_shuffle ( myvector.begin(), myvector.end() );
 
+    int cur_size = g.n;
+
 	//Visit a vertex at random and randomly match it with one of its neighbors
-	for (int i = 0; i < g.n; ++i) {
+	for (int i = 0; i < g.n && cur_size > target; ++i) {
                 int currVtx = myvector[i];
 
                 if( !isMatched[currVtx] ) {
@@ -154,12 +156,14 @@ void randomMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG) {
 				isMatched[ currVtx ] = true;
                                 isMatched [ neighbors[0] ] = true;
                                 matchEdges.insert( Edge(currVtx, neighbors[0]) );
+                                cur_size --;
 			}
 			else if( numVtxs > 1) {
 				int randIndex = rand() % numVtxs;	
 				isMatched[ currVtx ] = true;
                                 isMatched [  neighbors[ randIndex] ] = true;         
                                 matchEdges.insert( Edge(currVtx, neighbors[ randIndex]) ); 
+                                cur_size --;
 			}	
                 }
         }
@@ -287,7 +291,7 @@ void randomMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG) {
  * Output: perm - mapping of vertices of g to the vertices of coarsendG
  *         coarsenedG - graph of the coarsened vertices */
 
-void heavyEdgeMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG) {
+void heavyEdgeMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG, int target) {
 	
 	//Matched edges   
         set<Edge> matchEdges; 
@@ -306,9 +310,11 @@ void heavyEdgeMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG) {
 	
 	//Randomly shuffles the vertices
 	std::random_shuffle ( myvector.begin(), myvector.end() );
+
+    int cur_size = g.n;
 	
 	//Visit a vertex at random and match it with the heaviest edge
-	for (int i = 0; i < g.n; i++) {
+	for (int i = 0; i < g.n && cur_size > target; i++) {
                 int currVtx = myvector[i];
 
                 if( !isMatched[currVtx] ) {
@@ -318,6 +324,7 @@ void heavyEdgeMatching(graph_t g, unsigned int *perm, graph_t & coarsenedG) {
                                 	isMatched[ currVtx ] = true;
                                 	isMatched [ g.adj[j] ] = true;
                                 	matchEdges.insert( Edge(currVtx, g.adj[j]) );
+                                    cur_size --;
 					break;
 				}
 			}
