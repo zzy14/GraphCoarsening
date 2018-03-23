@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
         }
         if (i % 1000 == 0)
         {
-            printf("Progress: %.3f%%", (double)i / (double)(g.n + 1) * 100);
+            printf("%cProgress: %.3f%%", 13, (double)i / (double)(g.n + 1) * 100);
             fflush(stdout);
         }
         addr += support_num;
