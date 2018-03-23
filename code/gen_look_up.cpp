@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <cstring.h>
 #include <iostream>
 #include <queue>
 #include <algorithm>  
@@ -94,7 +95,12 @@ int main(int argc, char *argv[]) {
             }
             if (pos == support_num)
                 break;
-        }      
+        }
+        if (i % 1000 == 0)
+        {
+            printf("Progress: %.3f%%", (double)i / (double)(g.n + 1) * 100);
+            fflush(stdout);
+        }
         addr += support_num;
     }
     
