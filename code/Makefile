@@ -3,11 +3,13 @@
 #CC = icc
 CC = g++
 
-all: graph_matching
+all: graph_matching gen_look_up
 
+gen_look_up: gen_look_up.cpp
+	$(CC) gen_look_up.cpp -o ./gen_look_up
 
 graph_matching: main.cpp
 	$(CC) main.cpp -o ./graph_matching
 
 clean:
-	rm -f ./graph_matching *.o
+	rm -f ./graph_matching *.o ./gen_look_up

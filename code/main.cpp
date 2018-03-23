@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
 
     // write look up
     FILE* fout;
-    fout = fopen("look_up.txt", "wb");
+    fout = fopen("coarse.txt", "wb");
     if (fout == NULL) {
         fprintf(stderr, "Error: could not open file to write lookup.\n");
         exit(1);
