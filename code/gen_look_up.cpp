@@ -94,7 +94,7 @@ void* look_up_thread(void* params)
         if (count % 1000 == 0)
         {
             total_count += 1000;
-            printf("%cProgress: %.3lf%%", 13, (double)total_count / (double)g.n);
+            printf("%cProgress: %.3lf%%", 13, (double)total_count / (double)g.n * 100);
             fflush(stdout);
         }
     }
