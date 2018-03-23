@@ -78,6 +78,8 @@ void* look_up_thread(void* params)
             pq.pop();
         }
         int min_count = pq.top();
+        if (min_count == 0)
+            min_count = 1;
         int pos = 0;
         for (int j = 0; j < coarse_num; j++)
         {
@@ -88,6 +90,11 @@ void* look_up_thread(void* params)
             }
             if (pos == SUPPORT_NUM)
                 break;
+        }
+        while (pos < SUPPORT_NUM)
+        {
+            addr[pos] = addr[0];
+            pos++;
         }
         addr += SUPPORT_NUM;
         count ++;
