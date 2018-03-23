@@ -8,6 +8,15 @@
 #include "graph_coarsening.cpp"
 using namespace std;
 
+int MAX_DEPTH = 5;
+int WALK_NUM = 40;
+int SUPPORT_NUM = 5;
+int total_count = 0;
+unsigned int coarse_num;
+graph_t g;
+unsigned int* coarse;
+unsigned int* look_up;
+
 void load_coarse(char *filename, unsigned int * coarse, long n, unsigned int* coarse_num)
 {
     FILE *infp;
@@ -30,42 +39,26 @@ void load_coarse(char *filename, unsigned int * coarse, long n, unsigned int* co
     fclose( infp );
 }
 
-int main(int argc, char *argv[]) {
-    int support_num = 5;
-    int max_depth = 5;
-    int walk_num = 40;
-    unsigned int coarse_num;
-
-    //Declare a graph
-    graph_t g;
-
-    //The program needs three parameters
-    if(argc < 3) {
-            cout<<"Usage: "<<argv[0]<<" graph-name "<< " coarse-name "<<endl;
-            exit(1);
-    }
-
-    //load the graph
-    load_graph_from_file(argv[1], &g);
-    
-    //load coarse dict
-    unsigned int* coarse = (unsigned int *) malloc(g.n * sizeof(unsigned int));
-    load_coarse(argv[2], coarse, g.n, &coarse_num);
-
-    unsigned int* look_up = (unsigned int *) malloc(g.n * sizeof(unsigned int) * support_num);
-    unsigned int* addr = look_up;
+void* look_up_thread(void* params)
+{
+    int begin = ((int*)params)[0];
+    int end = ((int*)params)[1];
+    int count = 0;
+    // printf("%d %d\n", begin, end);
 
     int* table = (int *) malloc(coarse_num * sizeof(int));
-
     unsigned int cur_n; //当前节点
     unsigned int neigh_num;
-    for (int i = 0; i < g.n; i++)
+
+    unsigned int* addr = look_up + begin*SUPPORT_NUM;
+
+    for (int i = begin; i < end; i++)
     {
         memset(table, 0, coarse_num * sizeof(unsigned int));
-        for (int j = 0; j < walk_num; j++)
+        for (int j = 0; j < WALK_NUM; j++)
         {
             cur_n = i;
-            for (int k = 0; k < max_depth; k++)
+            for (int k = 0; k < MAX_DEPTH; k++)
             {
                 neigh_num = g.num_edges[cur_n+1] - g.num_edges[cur_n];
                 if (neigh_num == 0)
@@ -75,11 +68,11 @@ int main(int argc, char *argv[]) {
             }
         }
         priority_queue <int, vector<int>, greater<int> > pq; // 小的在首
-        for (int j = 0; j < support_num; j++)
+        for (int j = 0; j < SUPPORT_NUM; j++)
         {
             pq.push(table[j]);
         }
-        for (int j = support_num; j < coarse_num; j++)
+        for (int j = SUPPORT_NUM; j < coarse_num; j++)
         {
             pq.push(table[j]);
             pq.pop();
@@ -93,16 +86,61 @@ int main(int argc, char *argv[]) {
                 addr[pos] = j;
                 pos++;
             }
-            if (pos == support_num)
+            if (pos == SUPPORT_NUM)
                 break;
         }
-        if (i % 1000 == 0)
+        addr += SUPPORT_NUM;
+        count ++;
+        if (count % 1000 == 0)
         {
-            printf("%cProgress: %.3f%%", 13, (double)i / (double)(g.n + 1) * 100);
+            total_count += 1000;
+            printf("%cProgress: %.3lf%%", 13, (double)total_count / (double)g.n);
             fflush(stdout);
         }
-        addr += support_num;
     }
+
+    free(table);
+    pthread_exit(NULL);
+}
+
+int main(int argc, char *argv[]) {
+    int num_threads = 1;
+
+    //The program needs three parameters
+    if(argc < 4) {
+            cout<<"Usage: "<<argv[0]<<" graph-name "<< " coarse-name " << "num-threads" <<endl;
+            exit(1);
+    }
+
+    num_threads = atoi(argv[3]);
+    //load the graph
+    load_graph_from_file(argv[1], &g);
+    
+    //load coarse dict
+    coarse = (unsigned int *) malloc(g.n * sizeof(unsigned int));
+    load_coarse(argv[2], coarse, g.n, &coarse_num);
+
+    look_up = (unsigned int *) malloc(g.n * sizeof(unsigned int) * SUPPORT_NUM);
+    unsigned int* addr = look_up;
+
+    pthread_t *pt = (pthread_t *)malloc(num_threads * sizeof(pthread_t));
+    int* params = (int*)malloc(2*num_threads*sizeof(int));
+
+    int base_size = (int)g.n / num_threads + 1;
+    for (int a = 0; a < num_threads; a++)
+    {
+        params[2*a] = base_size * a;
+        if (base_size*(a+1) > g.n)
+            params[2*a+1] = g.n;
+        else
+            params[2*a+1] = base_size*(a+1);
+    }
+
+    for (int a = 0; a < num_threads; a++) 
+    {
+        pthread_create(&pt[a], NULL, look_up_thread, (void *)(params + 2*a));
+    }
+    for (int a = 0; a < num_threads; a++) pthread_join(pt[a], NULL);
     
     // write look up
     FILE* fout;
@@ -115,18 +153,19 @@ int main(int argc, char *argv[]) {
     addr = look_up;
     for(int i = 0; i < g.n; i++) {
         fprintf(fout, "%d", i);
-        for (int j = 0; j < support_num; j++)
+        for (int j = 0; j < SUPPORT_NUM; j++)
         {
             fprintf(fout, " %u", addr[j]);
         }
         fprintf(fout, "\n");
-        addr += support_num;
+        addr += SUPPORT_NUM;
     }
     fclose(fout);
 
     //Free memory
     free( coarse );
     free( look_up );
+    free ( params );
 
     return 0;
 }
