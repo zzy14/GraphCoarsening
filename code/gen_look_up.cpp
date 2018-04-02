@@ -44,6 +44,7 @@ void* look_up_thread(void* params)
     int begin = ((int*)params)[0];
     int end = ((int*)params)[1];
     int count = 0;
+    unsigned long long next_random = (long long)begin;
     // printf("%d %d\n", begin, end);
 
     int* table = (int *) malloc(coarse_num * sizeof(int));
@@ -58,12 +59,14 @@ void* look_up_thread(void* params)
         for (int j = 0; j < WALK_NUM; j++)
         {
             cur_n = i;
+            table[coarse[cur_n]] += 1;
             for (int k = 0; k < MAX_DEPTH; k++)
             {
                 neigh_num = g.num_edges[cur_n+1] - g.num_edges[cur_n];
                 if (neigh_num == 0)
                     break;
-                cur_n = g.adj[g.num_edges[cur_n] + rand() % neigh_num];
+                next_random = next_random * (unsigned long long)25214903917 + 11;
+                cur_n = g.adj[g.num_edges[cur_n] + next_random % neigh_num];
                 table[coarse[cur_n]] += 1;
             }
         }
