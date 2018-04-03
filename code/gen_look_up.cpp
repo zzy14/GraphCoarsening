@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <float.h>
 #include <iostream>
 #include <queue>
 #include <algorithm>  
@@ -8,7 +9,7 @@
 #include "graph_coarsening.cpp"
 using namespace std;
 
-int MAX_DEPTH = 5;
+int MAX_DEPTH = 10;
 int WALK_NUM = 40;
 int SUPPORT_NUM = 5;
 int total_count = 0;
@@ -47,7 +48,7 @@ void* look_up_thread(void* params)
     unsigned long long next_random = (long long)begin;
     // printf("%d %d\n", begin, end);
 
-    int* table = (int *) malloc(coarse_num * sizeof(int));
+    float* table = (float *) malloc(coarse_num * sizeof(float));
     unsigned int cur_n; //当前节点
     unsigned int neigh_num;
 
@@ -55,11 +56,11 @@ void* look_up_thread(void* params)
 
     for (int i = begin; i < end; i++)
     {
-        memset(table, 0, coarse_num * sizeof(unsigned int));
+        memset(table, 0, coarse_num * sizeof(float));
         for (int j = 0; j < WALK_NUM; j++)
         {
             cur_n = i;
-            table[coarse[cur_n]] += 1;
+            // table[coarse[cur_n]] += 1;
             for (int k = 0; k < MAX_DEPTH; k++)
             {
                 neigh_num = g.num_edges[cur_n+1] - g.num_edges[cur_n];
@@ -67,10 +68,10 @@ void* look_up_thread(void* params)
                     break;
                 next_random = next_random * (unsigned long long)25214903917 + 11;
                 cur_n = g.adj[g.num_edges[cur_n] + next_random % neigh_num];
-                table[coarse[cur_n]] += 1;
+                table[coarse[cur_n]] += 1. / float(neigh_num);
             }
         }
-        priority_queue <int, vector<int>, greater<int> > pq; // 小的在首
+        priority_queue <float, vector<float>, greater<float> > pq; // 小的在首
         for (int j = 0; j < SUPPORT_NUM; j++)
         {
             pq.push(table[j]);
@@ -80,9 +81,9 @@ void* look_up_thread(void* params)
             pq.push(table[j]);
             pq.pop();
         }
-        int min_count = pq.top();
+        float min_count = pq.top();
         if (min_count == 0)
-            min_count = 1;
+            min_count = FLT_MIN;
         int pos = 0;
         for (int j = 0; j < coarse_num; j++)
         {
