@@ -6,6 +6,7 @@
 #include <algorithm>  
 #include <vector>  
 #include <functional> 
+#include <pthread.h>
 #include "graph_coarsening.cpp"
 using namespace std;
 
