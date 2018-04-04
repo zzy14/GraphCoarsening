@@ -61,7 +61,7 @@ void* look_up_thread(void* params)
         for (int j = 0; j < WALK_NUM; j++)
         {
             cur_n = i;
-            // table[coarse[cur_n]] += 1;
+            table[coarse[cur_n]] += 1;
             for (int k = 0; k < MAX_DEPTH; k++)
             {
                 neigh_num = g.num_edges[cur_n+1] - g.num_edges[cur_n];
