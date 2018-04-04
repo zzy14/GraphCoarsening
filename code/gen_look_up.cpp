@@ -69,7 +69,8 @@ void* look_up_thread(void* params)
                     break;
                 next_random = next_random * (unsigned long long)25214903917 + 11;
                 cur_n = g.adj[g.num_edges[cur_n] + next_random % neigh_num];
-                table[coarse[cur_n]] += 1. / float(neigh_num);
+                table[coarse[cur_n]] += 1.;
+                // table[coarse[cur_n]] += 1. / float(neigh_num);
             }
         }
         priority_queue <float, vector<float>, greater<float> > pq; // 小的在首
