@@ -13,6 +13,7 @@ outputfile = sys.argv[2]
 
 # read graph
 graph = defaultdict(list)
+node_set = set()
 count = 0
 with open(inputfile, 'r') as edgeFile:
     while 1:
@@ -24,13 +25,15 @@ with open(inputfile, 'r') as edgeFile:
         if node2 == node1:
             continue
         graph[node1].append(node2)
+        node_set.add(node1)
+        node_set.add(node2)
         # graph[node2].append(node1)
     for n in graph.keys():
         clean = set(graph[n])
         graph[n] = list(clean)
         count += len(graph[n])
 
-nsize = max(graph.keys())+1
+nsize = len(node_set)
 fout = open(outputfile, 'w')
 fout.write('{} {}\n'.format(nsize, count))
 for i in range(nsize):
