@@ -49,7 +49,7 @@ void* look_up_thread(void* params)
     unsigned long long next_random = (long long)begin;
     // printf("%d %d\n", begin, end);
 
-    float* table = (float *) malloc(coarse_num * sizeof(float));
+    int* table = (int *) malloc(coarse_num * sizeof(int));
     unsigned int cur_n; //当前节点
     unsigned int neigh_num;
 
@@ -57,7 +57,7 @@ void* look_up_thread(void* params)
 
     for (int i = begin; i < end; i++)
     {
-        memset(table, 0, coarse_num * sizeof(float));
+        memset(table, 0, coarse_num * sizeof(int));
         for (int j = 0; j < WALK_NUM; j++)
         {
             cur_n = i;
@@ -68,12 +68,12 @@ void* look_up_thread(void* params)
                 if (neigh_num == 0)
                     break;
                 next_random = next_random * (unsigned long long)25214903917 + 11;
-                cur_n = g.adj[g.num_edges[cur_n] + next_random % neigh_num];
-                table[coarse[cur_n]] += 1.;
+                cur_n = g.adj[g.num_edges[cur_n] + (unsigned int)(next_random) % neigh_num];
+                table[coarse[cur_n]] += 1;
                 // table[coarse[cur_n]] += 1. / float(neigh_num);
             }
         }
-        priority_queue <float, vector<float>, greater<float> > pq; // 小的在首
+        priority_queue <int, vector<int>, greater<int> > pq; // 小的在首
         for (int j = 0; j < SUPPORT_NUM; j++)
         {
             pq.push(table[j]);
@@ -85,7 +85,7 @@ void* look_up_thread(void* params)
         }
         float min_count = pq.top();
         if (min_count == 0)
-            min_count = FLT_MIN;
+            min_count = 1;
         int pos = 0;
         for (int j = 0; j < coarse_num; j++)
         {

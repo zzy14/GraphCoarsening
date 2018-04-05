@@ -24,7 +24,7 @@ with open(inputfile, 'r') as edgeFile:
         if node2 == node1:
             continue
         graph[node1].append(node2)
-        graph[node2].append(node1)
+        # graph[node2].append(node1)
     for n in graph.keys():
         clean = set(graph[n])
         graph[n] = list(clean)

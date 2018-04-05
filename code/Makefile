@@ -6,7 +6,7 @@ CC = g++
 all: graph_matching gen_look_up
 
 gen_look_up: gen_look_up.cpp
-	$(CC) gen_look_up.cpp -o ./gen_look_up
+	$(CC) gen_look_up.cpp -o ./gen_look_up -pthread
 
 graph_matching: main.cpp
 	$(CC) main.cpp -o ./graph_matching
