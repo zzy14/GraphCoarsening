@@ -7,6 +7,7 @@
 #include <vector>  
 #include <functional> 
 #include <pthread.h>
+#include <unordered_map>
 #include "graph_coarsening.cpp"
 using namespace std;
 
@@ -49,7 +50,7 @@ void* look_up_thread(void* params)
     unsigned long long next_random = (long long)begin;
     // printf("%d %d\n", begin, end);
 
-    int* table = (int *) malloc(coarse_num * sizeof(int));
+    // int* table = (int *) malloc(coarse_num * sizeof(int));
     unsigned int cur_n; //当前节点
     unsigned int neigh_num;
 
@@ -57,7 +58,7 @@ void* look_up_thread(void* params)
 
     for (int i = begin; i < end; i++)
     {
-        memset(table, 0, coarse_num * sizeof(int));
+        unordered_map<unsigned, int> table;
         for (int j = 0; j < WALK_NUM; j++)
         {
             cur_n = i;
@@ -74,24 +75,28 @@ void* look_up_thread(void* params)
             }
         }
         priority_queue <int, vector<int>, greater<int> > pq; // 小的在首
-        for (int j = 0; j < SUPPORT_NUM; j++)
+        unordered_map<unsigned, int>::iterator it = table.begin();
+        for (int j = 0; j < SUPPORT_NUM && it != table.end(); j++)
         {
-            pq.push(table[j]);
+            pq.push(it->second);
+            it ++;
         }
-        for (int j = SUPPORT_NUM; j < coarse_num; j++)
+        for (int j = SUPPORT_NUM; j < coarse_num && it != table.end(); j++)
         {
-            pq.push(table[j]);
+            pq.push(it->second);
             pq.pop();
+            it ++;
         }
         float min_count = pq.top();
         if (min_count == 0)
             min_count = 1;
         int pos = 0;
-        for (int j = 0; j < coarse_num; j++)
+        it = table.begin();
+        for (; it != table.end(); it++)
         {
-            if (table[j] >= min_count)
+            if (it->second >= min_count)
             {
-                addr[pos] = j;
+                addr[pos] = it->first;
                 pos++;
             }
             if (pos == SUPPORT_NUM)
@@ -112,7 +117,6 @@ void* look_up_thread(void* params)
         }
     }
 
-    free(table);
     pthread_exit(NULL);
 }
 
